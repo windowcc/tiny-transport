@@ -1,3 +1,3 @@
-# tiny-ipc - C++ IPC Library
+# tiny-transport - C++ IPC Library
 
 # High performance inter process communication library based on shared memory.

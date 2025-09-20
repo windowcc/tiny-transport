@@ -1,4 +1,4 @@
-(tiny-ipc) High performance inter process communication library based on shared memory.
+(tiny-transport) High performance inter process communication library based on shared memory.
 
 Copyright (c) 2024 charley
 
