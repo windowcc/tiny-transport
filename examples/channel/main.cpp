@@ -4,67 +4,65 @@
 #include <iostream>
 #include <atomic>
 #include <thread>
-#include <ipc/ipc.h>
+#include <uvw.hpp>
+#include <transport/TransportFactory.h>
+#include <transport/type.h>
+#include <udp/UDPv4TransportDescriptor.h>
+#include <IPLocator.h>
+#include <transport/TransportInterface.h>
+
+using namespace transport;
 
 namespace {
 
-std::atomic<bool> IsQuit { false };
-ipc::Channel *Ipc = nullptr;
-uint16_t Count = 0;
+std::shared_ptr<TransportFactory> factory = nullptr;
+
+transport::SendResourceList send_resource_list_;
+transport::ReceiverResourceList recv_resource_list_;
 
 void do_send()
 {
-    ipc::Channel ipc {"channel", ipc::SENDER};
-    Ipc = &ipc;
-    const std::string buffer1 {"Hello,World!!!"};
-    const std::string buffer2 {"nice to meet you."};
-    while (!IsQuit.load(std::memory_order_acquire))
+    Locator local_locator,remote_locator;
+    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"0.0.0.0",30490,local_locator);
+    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,remote_locator);
+    factory->build_send_resources(send_resource_list_,local_locator);
+
+    LocatorList locators;
+    locators.push_back(remote_locator);
+    octet *data = new octet[12];
+    std::string str = "Hello,World!!!";
+    memcpy(data,str.c_str(),str.length());
+    for (auto it : send_resource_list_)
     {
-        if(Count++ >= 1000)
-        {
-            break;
-        }
-        std::cout << "Write " << Count << " : " << (Count%2 == 1 ? buffer1 : buffer2) << "\n";
-        ipc.write(std::to_string(Count) + " : " + (Count%2 == 1 ? buffer1 : buffer2));
-        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        it->send(data,12,locators,std::chrono::steady_clock::time_point());
     }
 }
 
-class SendCallback : public ipc::Callback
-{
-public:
-    virtual void message_arrived(const ipc::Buffer *buf /*msg*/, const ipc::ErrorCode &cause) final{
-        std::cout << "Read " << std::string((char*)buf->data(),buf->size()) << "\n";
-    }
-private:
-    uint32_t cnt_ {0};
-};
-
 void do_recv()
 {
-    std::cout << "Please Enter Ctrl + C to End." << std::endl;
-    ipc::Channel ipc {"channel", ipc::RECEIVER};
-    ipc.set_callback(
-        std::dynamic_pointer_cast<ipc::Callback>(std::make_shared<SendCallback>()));
-    Ipc = &ipc;
-    ipc.read();
+    Locator local_locator;
+    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,local_locator);
+    factory->build_receiver_resources(local_locator,recv_resource_list_,65535);
+
+    for(auto it : recv_resource_list_)
+    {
+        it->register_receiver([](const unsigned char* data,
+                                    const uint32_t size,
+                                    const SocketLocator& local_locator,
+                                    const SocketLocator& remote_locator)
+        {
+            std::cout << "receive message : " << std::endl;
+        });
+    }
 }
 
 } // namespace
 
 int main(int argc, char ** argv)
 {
-    if (argc < 2)
-    {
-        return -1;
-    }
     auto exit = [](int)
     {
-        IsQuit.store(true, std::memory_order_release);
-        if (Ipc)
-        {
-            Ipc->disconnect();
-        }
+        uvw::loop::get_default()->close();
     };
     ::signal(SIGINT  , exit);
     ::signal(SIGABRT , exit);
@@ -78,6 +76,13 @@ int main(int argc, char ** argv)
     ::signal(SIGHUP  , exit);
 #endif
 
+    UDPv4TransportDescriptor desc;
+    if(!factory)
+    {
+        factory = std::make_shared<TransportFactory>();
+    }
+    factory->register_transport(&desc);
+    
     std::string mode {argv[1]};
     if (mode == "send")
     {
@@ -87,6 +92,7 @@ int main(int argc, char ** argv)
     {
         do_recv();
     }
+    uvw::loop::get_default()->run();
     return 0;
 }
 

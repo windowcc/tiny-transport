@@ -11,7 +11,9 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} 
-    tiny-ipc
+    tiny-transport
+    uv
+    uvw
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
