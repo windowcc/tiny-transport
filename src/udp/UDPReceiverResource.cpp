@@ -43,7 +43,7 @@ UDPReceiverResource::UDPReceiverResource(
 
     locator_check_callback_ = [&](const Locator &locatorToCheck) -> bool
     {
-        return locator.kind == locatorToCheck.kind && transport_->DoInputLocatorsMatch(locator, locatorToCheck);
+        return locator.kind == locatorToCheck.kind && transport_->do_input_locators_match(locator, locatorToCheck);
     };
 }
 

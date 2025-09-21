@@ -33,7 +33,7 @@ namespace transport
  *       whitelisted interface, and join the multicast channel specified by the locator address. Hence, any locator
  *       that does not correspond to the multicast range will simply open the port without a subsequent join. Joining
  *       multicast groups late is supported by attempting to open the channel again with the same port + a
- *       multicast address (the OpenInputChannel function will fail, however, because no new channel has been
+ *       multicast address (the open_input_channel function will fail, however, because no new channel has been
  *       opened in a strict sense).
  * @ingroup TRANSPORT_MODULE
  */
@@ -50,24 +50,19 @@ public:
      * Starts listening on the specified port, and if the specified address is in the
      * multicast range, it joins the specified multicast group,
      */
-    bool OpenInputChannel(
+    bool open_input_channel(
         ReceiverResourceList &receiver_resource_list,
         const Locator &,
         uint32_t) override;
 
-    LocatorList NormalizeLocator(
+    LocatorList normalize_locator(
         const Locator &locator) override;
 
-    // TransportDescriptorInterface *get_configuration() override
-    // {
-    //     return &descriptor_;
-    // }
-
-    bool getDefaultMetatrafficMulticastLocators(
+    bool default_metatraffic_multicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_multicast_port) const override;
 
-    bool getDefaultMetatrafficUnicastLocators(
+    bool default_metatraffic_unicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_unicast_port) const override;
 

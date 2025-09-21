@@ -23,13 +23,6 @@
 #include "UDPReceiverResource.h"
 #include <transport/TransportInterface.h>
 
-
-namespace internal
-{
-class Socket;
-struct SocketLocator;
-}
-
 namespace transport
 {
 
@@ -40,21 +33,29 @@ class UDPTransportInterface : public TransportInterface
 public:
     virtual ~UDPTransportInterface() override;
 
-    void clean();
-
     //! Reports whether Locators correspond to the same port.
-    bool DoInputLocatorsMatch(
+    bool do_input_locators_match(
         const Locator &,
         const Locator &) const override;
 
     bool init() override;
 
+    virtual void shutdown()
+    {
+
+    }
+
+    virtual int32_t kind() const
+    {
+        return transport_kind_;
+    }
+
     //! Checks for TCP kinds.
-    bool IsLocatorSupported(
+    bool is_locator_supported(
         const Locator &) const override;
 
     //! Opens a socket on the given address and port (as long as they are white listed).
-    bool OpenOutputChannel(
+    bool open_output_channel(
         SendResourceList &sender_resource_list,
         const Locator &) override;
 
@@ -63,7 +64,7 @@ public:
      * destination) to the main local locator whose channel can write to that
      * destination. In this case it will return a 0.0.0.0 address on that port.
      */
-    Locator RemoteToMainLocal(
+    Locator remote_to_main_local(
         const Locator &) const override;
 
     /**
@@ -104,25 +105,26 @@ public:
      * @param [in, out] selector Locator selector.
      */
 
-    bool fillMetatrafficMulticastLocator(
+    bool fill_metatraffic_multicast_locator(
         Locator &locator,
         uint32_t metatraffic_multicast_port) const override;
 
-    bool fillMetatrafficUnicastLocator(
+    bool fill_metatraffic_unicast_locator(
         Locator &locator,
         uint32_t metatraffic_unicast_port) const override;
 
-    bool fillUnicastLocator(
+    bool fill_unicast_locator(
         Locator &locator,
         uint32_t well_known_port) const override;
 
     void update_network_interfaces() override;
 
-    std::vector<std::string> PrintNetworkInterfaces();
     std::atomic_bool rescan_interfaces_ = {true};
 
 protected:
     friend class UDPReceiverResource;
+
+    int32_t transport_kind_;
 
     // For UDPv6, the notion of channel corresponds to a port + direction tuple.
     std::vector<IPFinder::info_IP> currentInterfaces;

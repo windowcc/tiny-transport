@@ -22,14 +22,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "UDPSenderResource.hpp"
-#include "PortParameters.hpp"
 
 namespace transport
 {
 
 UDPTransportInterface::UDPTransportInterface(
     int32_t transport_kind)
-    : TransportInterface(transport_kind)
+    : TransportInterface()
+    , transport_kind_(transport_kind)
     , mSendBufferSize(0)
     , mReceiveBufferSize(0)
 {
@@ -39,11 +39,7 @@ UDPTransportInterface::~UDPTransportInterface()
 {
 }
 
-void UDPTransportInterface::clean()
-{
-}
-
-bool UDPTransportInterface::DoInputLocatorsMatch(
+bool UDPTransportInterface::do_input_locators_match(
     const Locator &left,
     const Locator &right) const
 {
@@ -52,83 +48,22 @@ bool UDPTransportInterface::DoInputLocatorsMatch(
 
 bool UDPTransportInterface::init()
 {
-    int sockfd;
-    int send_buf_size, recv_buf_size;
 
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0); // 创建 UDP 套接字
-
-    if (sockfd < 0)
-    {
-        perror("Error creating socket");
-        return 1;
-    }
-
-    // if (descriptor_.min_send_buffer_size() == 0)
-    // {
-    //     socklen_t optlen = sizeof(send_buf_size);
-    //     getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, &optlen);
-    //     set_send_buffer_size(send_buf_size);
-    //     if (descriptor_.min_send_buffer_size() < s_minimumSocketBuffer)
-    //     {
-    //         set_send_buffer_size(s_minimumSocketBuffer);
-    //         send_buf_size = s_minimumSocketBuffer;
-    //     }
-
-    //     setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, sizeof(send_buf_size));
-    //     mSendBufferSize = send_buf_size;
-    // }
-
-    // if (descriptor_.min_recv_buffer_size() == 0)
-    // {
-    //     socklen_t optlen = sizeof(recv_buf_size);
-    //     getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, &optlen);
-    //     set_receive_buffer_size(recv_buf_size);
-    //     if (descriptor_.min_recv_buffer_size() < s_minimumSocketBuffer)
-    //     {
-    //         recv_buf_size = s_minimumSocketBuffer;
-    //         set_receive_buffer_size(s_minimumSocketBuffer);
-    //     }
-
-    //     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, sizeof(recv_buf_size));
-    //     mReceiveBufferSize = recv_buf_size;
-    // }
-    close(sockfd);
-
-    // if (descriptor_.max_message_size_ > s_maximumMessageSize)
-    // {
-    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than 65000");
-    //     return false;
-    // }
-
-    // if (descriptor_.max_message_size_ > descriptor_.min_send_buffer_size())
-    // {
-    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than send_buffer_size");
-    //     return false;
-    // }
-
-    // if (descriptor_.max_message_size_ > descriptor_.min_recv_buffer_size())
-    // {
-    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than receive_buffer_size");
-    //     return false;
-    // }
-
-    // TODO(Ricardo) Create an event that update this list.
     get_ips(currentInterfaces);
-
     return true;
 }
 
-bool UDPTransportInterface::IsLocatorSupported(
+bool UDPTransportInterface::is_locator_supported(
     const Locator &locator) const
 {
     return locator.kind == transport_kind_;
 }
 
-bool UDPTransportInterface::OpenOutputChannel(
+bool UDPTransportInterface::open_output_channel(
     SendResourceList &sender_resource_list,
     const Locator &locator)
 {
-    if (!IsLocatorSupported(locator))
+    if (!is_locator_supported(locator))
     {
         return false;
     }
@@ -145,10 +80,10 @@ bool UDPTransportInterface::OpenOutputChannel(
     return false;
 }
 
-Locator UDPTransportInterface::RemoteToMainLocal(
+Locator UDPTransportInterface::remote_to_main_local(
     const Locator &remote) const
 {
-    if (!IsLocatorSupported(remote))
+    if (!is_locator_supported(remote))
     {
         return false;
     }
@@ -175,7 +110,7 @@ bool UDPTransportInterface::send(
 
     for (auto &locator : locators)
     {
-        if (IsLocatorSupported(locator))
+        if (is_locator_supported(locator))
         {
             ret &= send(send_buffer,
                         send_buffer_size,
@@ -218,7 +153,7 @@ bool UDPTransportInterface::send(
     return success;
 }
 
-bool UDPTransportInterface::fillMetatrafficMulticastLocator(
+bool UDPTransportInterface::fill_metatraffic_multicast_locator(
     Locator &locator,
     uint32_t metatraffic_multicast_port) const
 {
@@ -229,7 +164,7 @@ bool UDPTransportInterface::fillMetatrafficMulticastLocator(
     return true;
 }
 
-bool UDPTransportInterface::fillMetatrafficUnicastLocator(
+bool UDPTransportInterface::fill_metatraffic_unicast_locator(
     Locator &locator,
     uint32_t metatraffic_unicast_port) const
 {
@@ -241,7 +176,7 @@ bool UDPTransportInterface::fillMetatrafficUnicastLocator(
 }
 
 
-bool UDPTransportInterface::fillUnicastLocator(
+bool UDPTransportInterface::fill_unicast_locator(
     Locator &locator,
     uint32_t well_known_port) const
 {
@@ -255,34 +190,6 @@ bool UDPTransportInterface::fillUnicastLocator(
 void UDPTransportInterface::update_network_interfaces()
 {
     rescan_interfaces_.store(true);
-}
-
-std::vector<std::string> UDPTransportInterface::PrintNetworkInterfaces()
-{
-    struct ifaddrs *interfaces = nullptr;
-    struct ifaddrs *interface = nullptr;
-
-    std::vector<std::string> vec;
-
-    if (getifaddrs(&interfaces) == -1)
-    {
-        std::cerr << "Failed to get network interfaces" << std::endl;
-        return vec;
-    }
-
-    for (interface = interfaces; interface != nullptr; interface = interface->ifa_next)
-    {
-        if (interface->ifa_addr->sa_family == AF_INET)
-        {
-            void *tmpAddrPtr = &((struct sockaddr_in *)interface->ifa_addr)->sin_addr;
-            char addressBuffer[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            std::string str(addressBuffer);
-            vec.push_back(str);
-        }
-    }
-    freeifaddrs(interfaces);
-    return vec;
 }
 
 } // namespace transport

@@ -35,7 +35,6 @@ using SendResourceList = std::vector<std::shared_ptr<SenderResource>>;
 using ReceiverResourceList = std::vector<std::shared_ptr<ReceiverResource>>;
 
 
-class PortParameters;
 class TransportDescriptorInterface;
 /**
  * Interface against which to implement a transport layer, decoupled from TRANSPORT internals.
@@ -83,45 +82,45 @@ public:
     virtual bool init() = 0;
 
     //! Must report whether the given locator is supported by this transport (typically inspecting its "kind" value).
-    virtual bool IsLocatorSupported(
+    virtual bool is_locator_supported(
         const Locator &) const = 0;
 
     //! Returns the locator describing the main (most general) channel that can write to the provided remote locator.
-    virtual Locator RemoteToMainLocal(
+    virtual Locator remote_to_main_local(
         const Locator &remote) const = 0;
 
     //! Must open the channel that maps to/from the given locator. This method must allocate, reserve and mark
     //! any resources that are needed for said channel.
-    virtual bool OpenOutputChannel(
+    virtual bool open_output_channel(
         SendResourceList &sender_resource_list,
         const Locator &) = 0;
 
     /** Opens an input channel to receive incoming connections.
      *   If there is an existing channel it registers the receiver interface.
      */
-    virtual bool OpenInputChannel(
+    virtual bool open_input_channel(
         ReceiverResourceList &,
         const Locator &,
         uint32_t) = 0;
 
     //! Must report whether two locators map to the same internal channel.
-    virtual bool DoInputLocatorsMatch(
+    virtual bool do_input_locators_match(
         const Locator &,
         const Locator &) const = 0;
 
     //! Performs locator normalization (assign valid IP if not defined by user)
-    virtual LocatorList NormalizeLocator(
+    virtual LocatorList normalize_locator(
         const Locator &locator) = 0;
 
     // virtual TransportDescriptorInterface *get_configuration() = 0;
 
     //! Add metatraffic multicast locator with the given port
-    virtual bool getDefaultMetatrafficMulticastLocators(
+    virtual bool default_metatraffic_multicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_multicast_port) const = 0;
 
     //! Add metatraffic unicast locator with the given port
-    virtual bool getDefaultMetatrafficUnicastLocators(
+    virtual bool default_metatraffic_unicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_unicast_port) const = 0;
 
@@ -131,49 +130,37 @@ public:
     //     uint32_t unicast_port) const = 0;
 
     //! Assign port to the given metatraffic multicast locator if not already defined
-    virtual bool fillMetatrafficMulticastLocator(
+    virtual bool fill_metatraffic_multicast_locator(
         Locator &locator,
         uint32_t metatraffic_multicast_port) const = 0;
 
     //! Assign port to the given metatraffic unicast locator if not already defined
-    virtual bool fillMetatrafficUnicastLocator(
+    virtual bool fill_metatraffic_unicast_locator(
         Locator &locator,
         uint32_t metatraffic_unicast_port) const = 0;
 
 
     //! Assign port to the given unicast locator if not already defined
-    virtual bool fillUnicastLocator(
+    virtual bool fill_unicast_locator(
         Locator &locator,
         uint32_t well_known_port) const = 0;
 
     /**
      * shutdown method to close the connections of the transports.
      */
-    virtual void shutdown()
-    {
-    }
+    virtual void shutdown() = 0;
 
     /**
      * @brief Update network interfaces.
      */
-    virtual void update_network_interfaces()
-    {
-    }
+    virtual void update_network_interfaces() = 0;
 
-    //! Return the transport kind
-    int32_t kind() const
-    {
-        return transport_kind_;
-    }
+    virtual int32_t kind() const = 0;
 
 protected:
-    TransportInterface(
-        int32_t transport_kind)
-        : transport_kind_(transport_kind)
+    TransportInterface()
     {
     }
-
-    int32_t transport_kind_;
 };
 
 } // namespace transport

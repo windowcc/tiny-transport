@@ -45,17 +45,11 @@ UDPv6Transport::UDPv6Transport()
 {
 }
 
-// UDPv6Transport::UDPv6Transport()
-//     : UDPTransportInterface(LOCATOR_KIND_UDPv6)
-// {
-// }
-
 UDPv6Transport::~UDPv6Transport()
 {
-    clean();
 }
 
-bool UDPv6Transport::getDefaultMetatrafficMulticastLocators(
+bool UDPv6Transport::default_metatraffic_multicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_multicast_port) const
 {
@@ -67,7 +61,7 @@ bool UDPv6Transport::getDefaultMetatrafficMulticastLocators(
     return true;
 }
 
-bool UDPv6Transport::getDefaultMetatrafficUnicastLocators(
+bool UDPv6Transport::default_metatraffic_unicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_unicast_port) const
 {
@@ -101,7 +95,7 @@ void UDPv6Transport::get_ips(
     get_ipv6s(locNames, return_loopback);
 }
 
-bool UDPv6Transport::OpenInputChannel(
+bool UDPv6Transport::open_input_channel(
     ReceiverResourceList &receiver_resource_list,
     const Locator &locator,
     uint32_t maxMsgSize)
@@ -112,7 +106,7 @@ bool UDPv6Transport::OpenInputChannel(
     return true;
 }
 
-LocatorList UDPv6Transport::NormalizeLocator(
+LocatorList UDPv6Transport::normalize_locator(
     const Locator &locator)
 {
     LocatorList list;

@@ -27,7 +27,7 @@ TransportInterface *TransportDescriptor<UDPv4Descriptor>::create_transport() con
 
 TransportInterface *TransportDescriptor<UDPv6Descriptor>::create_transport() const
 {
-    return new UDPv4Transport();
+    return new UDPv6Transport();
 }
 
 

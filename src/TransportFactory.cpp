@@ -13,15 +13,26 @@
 // limitations under the License.
 
 #include <transport/TransportFactory.h>
+#include <uvw.hpp>
 #include "IPLocator.h"
 
 namespace transport
 {
 
-TransportFactory::TransportFactory()
-    : max_message_size_between_transports_(std::numeric_limits<uint32_t>::max()),
-        min_send_buffer_size_(std::numeric_limits<uint32_t>::max())
+TransportFactory::TransportFactory(std::shared_ptr<uvw::loop> loop)
+    : loop_(loop)
+    , max_message_size_between_transports_(std::numeric_limits<uint32_t>::max())
+    , min_send_buffer_size_(std::numeric_limits<uint32_t>::max())
 {
+    if(!loop_)
+    {
+        loop_ = uvw::loop::get_default();
+    }
+}
+
+TransportFactory::~TransportFactory()
+{
+
 }
 
 bool TransportFactory::build_send_resources(
@@ -32,7 +43,7 @@ bool TransportFactory::build_send_resources(
 
     for (auto &transport : registered_transports_)
     {
-        returned_value |= transport->OpenOutputChannel(sender_resource_list, locator);
+        returned_value |= transport->open_output_channel(sender_resource_list, locator);
     }
 
     return returned_value;
@@ -48,7 +59,7 @@ bool TransportFactory::build_receiver_resources(
     {
         // uint32_t max_recv_buffer_size = (std::min)(
         //     transport->max_recv_buffer_size(), receiver_max_message_size);
-        returnedValue |= transport->OpenInputChannel(receiver_resources_list, locator, receiver_max_message_size);
+        returnedValue |= transport->open_input_channel(receiver_resources_list, locator, receiver_max_message_size);
     }
     return returnedValue;
 }
@@ -94,15 +105,15 @@ void TransportFactory::normalize_locators(
     LocatorList normalizedLocators;
 
     std::for_each(locators.begin(), locators.end(), [&](Locator &loc)
-                    {
+    {
             bool normalized = false;
             for (auto& transport : registered_transports_)
             {
                 // Check if the locator is supported and filter unicast locators.
-                if (transport->IsLocatorSupported(loc))
+                if (transport->is_locator_supported(loc))
                 {
                     // First found transport that supports it, this will normalize the locator.
-                    normalizedLocators.push_back(transport->NormalizeLocator(loc));
+                    normalizedLocators.push_back(transport->normalize_locator(loc));
                     normalized = true;
                 }
             }
@@ -110,7 +121,8 @@ void TransportFactory::normalize_locators(
             if (!normalized)
             {
                 normalizedLocators.push_back(loc);
-            } });
+            } 
+    });
 
     locators.swap(normalizedLocators);
 }
@@ -120,7 +132,7 @@ size_t TransportFactory::register_transport_szie() const
     return registered_transports_.size();
 }
 
-bool TransportFactory::getDefaultMetatrafficMulticastLocators(
+bool TransportFactory::default_metatraffic_multicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_multicast_port) const
 {
@@ -134,7 +146,7 @@ bool TransportFactory::getDefaultMetatrafficMulticastLocators(
         // by another transport
         if (transport->kind() != LOCATOR_KIND_SHM)
         {
-            result |= transport->getDefaultMetatrafficMulticastLocators(locators, metatraffic_multicast_port);
+            result |= transport->default_metatraffic_multicast_locators(locators, metatraffic_multicast_port);
         }
         else
         {
@@ -144,49 +156,49 @@ bool TransportFactory::getDefaultMetatrafficMulticastLocators(
 
     if (locators.size() == 0 && shm_transport)
     {
-        result |= shm_transport->getDefaultMetatrafficMulticastLocators(locators, metatraffic_multicast_port);
+        result |= shm_transport->default_metatraffic_multicast_locators(locators, metatraffic_multicast_port);
     }
 
     return result;
 }
 
-bool TransportFactory::fillMetatrafficMulticastLocator(
+bool TransportFactory::fill_metatraffic_multicast_locator(
     Locator &locator,
     uint32_t metatraffic_multicast_port) const
 {
     bool result = false;
     for (auto &transport : registered_transports_)
     {
-        if (transport->IsLocatorSupported(locator))
+        if (transport->is_locator_supported(locator))
         {
-            result |= transport->fillMetatrafficMulticastLocator(locator, metatraffic_multicast_port);
+            result |= transport->fill_metatraffic_multicast_locator(locator, metatraffic_multicast_port);
         }
     }
     return result;
 }
 
-bool TransportFactory::getDefaultMetatrafficUnicastLocators(
+bool TransportFactory::default_metatraffic_unicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_unicast_port) const
 {
     bool result = false;
     for (auto &transport : registered_transports_)
     {
-        result |= transport->getDefaultMetatrafficUnicastLocators(locators, metatraffic_unicast_port);
+        result |= transport->default_metatraffic_unicast_locators(locators, metatraffic_unicast_port);
     }
     return result;
 }
 
-bool TransportFactory::fillMetatrafficUnicastLocator(
+bool TransportFactory::fill_metatraffic_unicast_locator(
     Locator &locator,
     uint32_t metatraffic_unicast_port) const
 {
     bool result = false;
     for (auto &transport : registered_transports_)
     {
-        if (transport->IsLocatorSupported(locator))
+        if (transport->is_locator_supported(locator))
         {
-            result |= transport->fillMetatrafficUnicastLocator(locator, metatraffic_unicast_port);
+            result |= transport->fill_metatraffic_unicast_locator(locator, metatraffic_unicast_port);
         }
     }
     return result;

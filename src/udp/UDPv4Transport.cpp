@@ -45,17 +45,12 @@ UDPv4Transport::UDPv4Transport()
 {
 }
 
-// UDPv4Transport::UDPv4Transport()
-//     : UDPTransportInterface(LOCATOR_KIND_UDPv4)
-// {
-// }
 
 UDPv4Transport::~UDPv4Transport()
 {
-    clean();
 }
 
-bool UDPv4Transport::getDefaultMetatrafficMulticastLocators(
+bool UDPv4Transport::default_metatraffic_multicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_multicast_port) const
 {
@@ -67,7 +62,7 @@ bool UDPv4Transport::getDefaultMetatrafficMulticastLocators(
     return true;
 }
 
-bool UDPv4Transport::getDefaultMetatrafficUnicastLocators(
+bool UDPv4Transport::default_metatraffic_unicast_locators(
     LocatorList &locators,
     uint32_t metatraffic_unicast_port) const
 {
@@ -101,12 +96,12 @@ void UDPv4Transport::get_ips(
     get_ipv4s(locNames, return_loopback);
 }
 
-bool UDPv4Transport::OpenInputChannel(
+bool UDPv4Transport::open_input_channel(
     ReceiverResourceList &receiver_resource_list,
     const Locator &locator,
     uint32_t maxMsgSize)
 {
-    if (!IsLocatorSupported(locator))
+    if (!is_locator_supported(locator))
     {
         return false;
     }
@@ -139,7 +134,7 @@ bool UDPv4Transport::OpenInputChannel(
     return true;
 }
 
-LocatorList UDPv4Transport::NormalizeLocator(
+LocatorList UDPv4Transport::normalize_locator(
     const Locator &locator)
 {
     LocatorList list;

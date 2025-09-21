@@ -21,7 +21,10 @@
 #include <transport/TransportInterface.h>
 #include <transport/TransportDescriptorInterface.h>
 
-
+namespace uvw
+{
+class loop;
+}
 
 namespace transport
 {
@@ -36,8 +39,9 @@ namespace transport
 class TransportFactory
 {
 public:
-    TransportFactory();
+    explicit TransportFactory(std::shared_ptr<uvw::loop> loop = nullptr);
 
+    ~TransportFactory();
     /**
      * Allow registration of a transport dynamically.
      *
@@ -53,7 +57,7 @@ public:
      * @param locator Locator through which to send.
      */
     bool build_send_resources(
-        SendResourceList &,
+        SendResourceList &sender_resource_list,
         const Locator &locator);
 
     /**
@@ -86,28 +90,28 @@ public:
     /**
      * Add locators to the metatraffic multicast list.
      * */
-    bool getDefaultMetatrafficMulticastLocators(
+    bool default_metatraffic_multicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_multicast_port) const;
 
     /**
      * Add locators to the metatraffic unicast list.
      * */
-    bool getDefaultMetatrafficUnicastLocators(
+    bool default_metatraffic_unicast_locators(
         LocatorList &locators,
         uint32_t metatraffic_unicast_port) const;
 
     /**
      * Fill the locator with the metatraffic multicast configuration.
      * */
-    bool fillMetatrafficMulticastLocator(
+    bool fill_metatraffic_multicast_locator(
         Locator &locator,
         uint32_t metatraffic_multicast_port) const;
 
     /**
      * Fill the locator with the metatraffic unicast configuration.
      * */
-    bool fillMetatrafficUnicastLocator(
+    bool fill_metatraffic_unicast_locator(
         Locator &locator,
         uint32_t metatraffic_unicast_port) const;
     /**
@@ -121,6 +125,8 @@ public:
     void update_network_interfaces();
 
 private:
+    std::shared_ptr<uvw::loop> loop_;
+
     std::vector<std::unique_ptr<TransportInterface>> registered_transports_;
 
     uint32_t max_message_size_between_transports_;
