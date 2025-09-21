@@ -40,8 +40,8 @@ bool TransportFactory::build_send_resources(
 }
 
 bool TransportFactory::build_receiver_resources(
+    ReceiverResourceList &receiver_resources_list,
     Locator &locator,
-    std::vector<std::shared_ptr<ReceiverResource>> &receiver_resources_list,
     uint32_t receiver_max_message_size)
 {
     bool returnedValue = false;

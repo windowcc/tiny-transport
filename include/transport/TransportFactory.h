@@ -64,8 +64,8 @@ public:
      * @param receiver_max_message_size Max message size allowed by the message receiver.
      */
     bool build_receiver_resources(
+        ReceiverResourceList &receiver_resources_list,
         Locator &local,
-        std::vector<std::shared_ptr<ReceiverResource>> &receiver_resources_list,
         uint32_t receiver_max_message_size);
 
     void normalize_locators(

@@ -155,7 +155,6 @@ protected:
     virtual void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) = 0;
-    virtual const std::string &localhost_name() = 0;
 
     virtual void set_receive_buffer_size(
         uint32_t size) = 0;

@@ -100,19 +100,6 @@ bool UDPv4Transport::getDefaultMetatrafficUnicastLocators(
     return true;
 }
 
-// bool UDPv4Transport::getDefaultUnicastLocators(
-//     LocatorList &locators,
-//     uint32_t unicast_port) const
-// {
-//     Locator locator;
-//     locator.kind = LOCATOR_KIND_UDPv4;
-//     locator.set_invalid_address();
-//     fillUnicastLocator(locator, unicast_port);
-//     locators.push_back(locator);
-
-//     return true;
-// }
-
 void UDPv4Transport::AddDefaultOutputLocator(
     LocatorList &defaultList)
 {
@@ -148,46 +135,39 @@ void UDPv4Transport::get_ips(
     get_ipv4s(locNames, return_loopback);
 }
 
-const std::string &UDPv4Transport::localhost_name()
-{
-    static const std::string ip4_localhost = "127.0.0.1";
-    return ip4_localhost;
-}
-
 bool UDPv4Transport::OpenInputChannel(
     ReceiverResourceList &receiver_resource_list,
     const Locator &locator,
     uint32_t maxMsgSize)
 {
-
-    if (IsLocatorSupported(locator))
+    if (!IsLocatorSupported(locator))
     {
-
-        // UDPReceiverResource *p_channel_resource;
-        if (IPLocator::isMulticast(locator))
+        return false;
+    }
+    // UDPReceiverResource *p_channel_resource;
+    if (IPLocator::isMulticast(locator))
+    {
+        auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
+        auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
+        if (recv_socket->bind("0.0.0.0", locator.port, uvw::details::uvw_udp_flags::REUSEADDR) < 0 ||
+                !recv_socket->multicast_membership(IPLocator::getIpByLocatorv4(locator), "0.0.0.0",uvw::udp_handle::membership::JOIN_GROUP))
         {
-            auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
-            auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
-            if (recv_socket->bind("0.0.0.0", locator.port, uvw::details::uvw_udp_flags::REUSEADDR) < 0 ||
-                    !recv_socket->multicast_membership(IPLocator::getIpByLocatorv4(locator), "0.0.0.0",uvw::udp_handle::membership::JOIN_GROUP))
-            {
-                return false;
-            }
+            return false;
+        }
 
-            recv_socket->recv();
-            receiver_resource_list.push_back(recv_resource);
-        }
-        else
+        recv_socket->recv();
+        receiver_resource_list.push_back(recv_resource);
+    }
+    else
+    {
+        auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
+        auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
+        if (recv_socket->bind(IPLocator::toIPv4string(locator), locator.port) < 0)
         {
-            auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
-            auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
-            if (recv_socket->bind(IPLocator::toIPv4string(locator), locator.port) < 0)
-            {
-                return false;
-            }
-            recv_socket->recv();
-            receiver_resource_list.push_back(recv_resource);
+            return false;
         }
+        recv_socket->recv();
+        receiver_resource_list.push_back(recv_resource);
     }
 
     return true;

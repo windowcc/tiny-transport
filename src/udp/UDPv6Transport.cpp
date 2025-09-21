@@ -167,12 +167,6 @@ void UDPv6Transport::get_ips(
     get_ipv6s(locNames, return_loopback);
 }
 
-const std::string &UDPv6Transport::localhost_name()
-{
-    static const std::string ip6_localhost = "::1";
-    return ip6_localhost;
-}
-
 bool UDPv6Transport::OpenInputChannel(
     ReceiverResourceList &receiver_resource_list,
     const Locator &locator,

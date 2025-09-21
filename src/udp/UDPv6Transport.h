@@ -94,13 +94,9 @@ protected:
         const Locator &lh,
         const Locator &rh) const override;
 
-    //     void fill_local_ip(
-    //             Locator& loc) const override;
-
     void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) override;
-    const std::string &localhost_name() override;
 
     void set_receive_buffer_size(
         uint32_t size) override;
