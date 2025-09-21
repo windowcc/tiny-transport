@@ -28,7 +28,7 @@ namespace transport
 {
 
 UDPTransportDescriptor::UDPTransportDescriptor()
-    : SocketTransportDescriptor(s_maximumMessageSize, s_maximumInitialPeersRange)
+    : TransportDescriptorInterface(s_maximumMessageSize, s_maximumInitialPeersRange)
     , m_output_udp_socket(0)
 {
 }
@@ -38,7 +38,7 @@ bool UDPTransportDescriptor::operator==(
 {
     return (this->m_output_udp_socket == t.m_output_udp_socket &&
             this->non_blocking_send == t.non_blocking_send &&
-            SocketTransportDescriptor::operator==(t));
+            TransportDescriptorInterface::operator==(t));
 }
 
 UDPTransportInterface::UDPTransportInterface(

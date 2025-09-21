@@ -55,8 +55,7 @@ bool TransportFactory::build_receiver_resources(
 }
 
 bool TransportFactory::register_transport(
-    const TransportDescriptorInterface *descriptor,
-    std::shared_ptr<Worker> work_manager)
+    const TransportDescriptorInterface *descriptor)
 {
     bool wasRegistered = false;
 

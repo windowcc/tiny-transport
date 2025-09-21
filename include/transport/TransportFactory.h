@@ -17,14 +17,14 @@
 
 #include <memory>
 #include <vector>
-#include <transport/SocketTransportDescriptor.h>
+#include <transport/type.h>
+#include <transport/TransportInterface.h>
+#include <transport/TransportDescriptorInterface.h>
 
 
 
 namespace transport
 {
-
-class ParticipantAttributes;
 
 /**
  * Provides the TRANSPORT library with abstract resources, which
@@ -45,8 +45,7 @@ public:
      * @param properties Optional policy to specify additional parameters for the created transport.
      */
     bool register_transport(
-        const TransportDescriptorInterface *descriptor,
-        std::shared_ptr<Worker> work_manager = nullptr);
+        const TransportDescriptorInterface *descriptor);
 
     /**
      * Walk over the list of transports, opening every possible channel that can send through

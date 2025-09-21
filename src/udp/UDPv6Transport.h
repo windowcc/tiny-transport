@@ -81,7 +81,6 @@ public:
         LocatorList &defaultList) override;
 
     void update_network_interfaces() override;
-    std::shared_ptr<Worker> worker_manager;
 
 protected:
     //! Constructor with no descriptor is necessary for implementations derived from this class.

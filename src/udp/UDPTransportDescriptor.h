@@ -15,7 +15,7 @@
 #ifndef TRANSPORT_UDP_TRANSPORT_DESCRIPTOR_
 #define TRANSPORT_UDP_TRANSPORT_DESCRIPTOR_
 
-#include <transport/SocketTransportDescriptor.h>
+#include <transport/TransportDescriptorInterface.h>
 
 namespace transport
 {
@@ -31,7 +31,7 @@ namespace transport
  *
  * @ingroup TRANSPORT_MODULE
  */
-struct UDPTransportDescriptor : public SocketTransportDescriptor
+struct UDPTransportDescriptor : public TransportDescriptorInterface
 {
     //! Destructor
     virtual ~UDPTransportDescriptor() = default;

@@ -25,8 +25,10 @@
 
 namespace transport
 {
-class Worker;
 class TransportInterface;
+
+//! Default time to live (TTL)
+constexpr uint8_t s_defaultTTL = 1;
 
 /**
  * Virtual base class for the data type used to define transport configuration.
@@ -46,8 +48,11 @@ struct TransportDescriptorInterface
     TransportDescriptorInterface(
         uint32_t maximumMessageSize,
         uint32_t maximumInitialPeersRange)
-        : max_message_size_(maximumMessageSize),
-        max_initial_peers_range_(maximumInitialPeersRange)
+        : send_buffer_size_(0)
+        , recv_buffer_size_(0)
+        , ttl_(s_defaultTTL)
+        , max_message_size_(maximumMessageSize)
+        , max_initial_peers_range_(maximumInitialPeersRange)
     {
     }
 
@@ -69,9 +74,15 @@ struct TransportDescriptorInterface
      */
     virtual TransportInterface *create_transport() const = 0;
 
-    //! Returns the minimum size required for a send operation.
-    virtual uint32_t min_send_buffer_size() const = 0;
-    virtual uint32_t min_recv_buffer_size() const = 0;
+    virtual uint32_t min_send_buffer_size() const
+    {
+        return send_buffer_size_;
+    }
+
+    virtual uint32_t min_recv_buffer_size() const
+    {
+        return recv_buffer_size_;
+    }
 
     //! Returns the maximum size expected for received messages.
     virtual uint32_t max_message_size() const
@@ -91,9 +102,19 @@ struct TransportDescriptorInterface
     bool operator==(
         const TransportDescriptorInterface &t) const
     {
-        return (this->max_message_size_ == t.max_message_size() &&
+        return (this->send_buffer_size_ == t.min_send_buffer_size() &&
+                this->recv_buffer_size_ == t.recv_buffer_size_ &&
+                this->ttl_ == t.ttl_ &&
+                this->max_message_size_ == t.max_message_size() &&
                 this->max_initial_peers_range_ == t.max_initial_peers_range());
     }
+
+    //! Length of the send buffer.
+    uint32_t send_buffer_size_;
+    //! Length of the receive buffer.
+    uint32_t recv_buffer_size_;
+    //! Specified time to live (8bit - 255 max TTL)
+    uint8_t ttl_;
 
     //! Maximum size of a single message in the transport
     uint32_t max_message_size_;
