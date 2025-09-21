@@ -19,12 +19,9 @@
 #include <memory>
 #include <atomic>
 #include <uvw.hpp>
-#include <transport/TransportInterface.h>
 #include "IPFinder.h"
-
-#include "UDPTransportDescriptor.h"
 #include "UDPReceiverResource.h"
-
+#include <transport/TransportInterface.h>
 
 
 namespace internal
@@ -50,7 +47,6 @@ public:
         const Locator &,
         const Locator &) const override;
 
-    virtual const UDPTransportDescriptor *configuration() const = 0;
     bool init() override;
 
     //! Checks for TCP kinds.
@@ -120,11 +116,6 @@ public:
         Locator &locator,
         uint32_t well_known_port) const override;
 
-    uint32_t max_recv_buffer_size() const override
-    {
-        return configuration()->max_message_size();
-    }
-
     void update_network_interfaces() override;
 
     std::vector<std::string> PrintNetworkInterfaces();
@@ -139,9 +130,6 @@ protected:
     uint32_t mSendBufferSize;
     uint32_t mReceiveBufferSize;
 
-    //! First time open output channel flag: open the first socket with the ip::multicast::enable_loopback
-    bool first_time_open_output_channel_;
-
     UDPTransportInterface(
         int32_t transport_kind);
     // CBaseWorker *worker
@@ -155,11 +143,6 @@ protected:
     virtual void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) = 0;
-
-    virtual void set_receive_buffer_size(
-        uint32_t size) = 0;
-    virtual void set_send_buffer_size(
-        uint32_t size) = 0;
 
     /**
      * Send a buffer to a destination

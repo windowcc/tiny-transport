@@ -15,7 +15,6 @@
 #ifndef TRANSPORT_UDPV4_TRANSPORT_H_
 #define TRANSPORT_UDPV4_TRANSPORT_H_
 
-#include "UDPv4TransportDescriptor.h"
 #include "UDPTransportInterface.h"
 
 namespace transport
@@ -41,12 +40,11 @@ namespace transport
 class UDPv4Transport : public UDPTransportInterface
 {
 public:
-    UDPv4Transport(
-        const UDPv4TransportDescriptor &);
+    UDPv4Transport();
 
     virtual ~UDPv4Transport() override;
 
-    const UDPTransportDescriptor *configuration() const override;
+    // const UDPTransportDescriptor *configuration() const override;
 
     /**
      * Starts listening on the specified port, and if the specified address is in the
@@ -60,14 +58,6 @@ public:
     LocatorList NormalizeLocator(
         const Locator &locator) override;
 
-    TransportDescriptorInterface *get_configuration() override
-    {
-        return &descriptor_;
-    }
-
-    void AddDefaultOutputLocator(
-        LocatorList &defaultList) override;
-
     bool getDefaultMetatrafficMulticastLocators(
         LocatorList &locators,
         uint32_t metatraffic_multicast_port) const override;
@@ -76,10 +66,6 @@ public:
         LocatorList &locators,
         uint32_t metatraffic_unicast_port) const override;
 
-    // bool getDefaultUnicastLocators(
-    //     LocatorList &locators,
-    //     uint32_t unicast_port) const override;
-
     /**
      * @brief Update network interfaces, binding the new interfaces to the multicast group.
      */
@@ -87,8 +73,7 @@ public:
 
 protected:
     //! Constructor with no descriptor is necessary for implementations derived from this class.
-    UDPv4Transport();
-    UDPv4TransportDescriptor descriptor_;
+    // UDPv4Transport();
 
     bool compare_locator_ip(
         const Locator &lh,
@@ -100,11 +85,6 @@ protected:
     void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) override;
-
-    void set_receive_buffer_size(
-        uint32_t size) override;
-    void set_send_buffer_size(
-        uint32_t size) override;
 };
 
 const char *const DEFAULT_METATRAFFIC_MULTICAST_ADDRESS = "239.255.0.1";

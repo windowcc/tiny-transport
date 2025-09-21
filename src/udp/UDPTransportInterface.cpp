@@ -27,26 +27,11 @@
 namespace transport
 {
 
-UDPTransportDescriptor::UDPTransportDescriptor()
-    : TransportDescriptorInterface(s_maximumMessageSize, s_maximumInitialPeersRange)
-    , m_output_udp_socket(0)
-{
-}
-
-bool UDPTransportDescriptor::operator==(
-    const UDPTransportDescriptor &t) const
-{
-    return (this->m_output_udp_socket == t.m_output_udp_socket &&
-            this->non_blocking_send == t.non_blocking_send &&
-            TransportDescriptorInterface::operator==(t));
-}
-
 UDPTransportInterface::UDPTransportInterface(
     int32_t transport_kind)
     : TransportInterface(transport_kind)
     , mSendBufferSize(0)
     , mReceiveBufferSize(0)
-    , first_time_open_output_channel_(true)
 {
 }
 
@@ -67,68 +52,65 @@ bool UDPTransportInterface::DoInputLocatorsMatch(
 
 bool UDPTransportInterface::init()
 {
+    int sockfd;
+    int send_buf_size, recv_buf_size;
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0); // 创建 UDP 套接字
+
+    if (sockfd < 0)
     {
-
-        int sockfd;
-        int send_buf_size, recv_buf_size;
-
-        sockfd = socket(AF_INET, SOCK_DGRAM, 0); // 创建 UDP 套接字
-
-        if (sockfd < 0)
-        {
-            perror("Error creating socket");
-            return 1;
-        }
-
-        if (get_configuration()->min_send_buffer_size() == 0)
-        {
-            socklen_t optlen = sizeof(send_buf_size);
-            getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, &optlen);
-            set_send_buffer_size(send_buf_size);
-            if (get_configuration()->min_send_buffer_size() < s_minimumSocketBuffer)
-            {
-                set_send_buffer_size(s_minimumSocketBuffer);
-                send_buf_size = s_minimumSocketBuffer;
-            }
-
-            setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, sizeof(send_buf_size));
-            mSendBufferSize = send_buf_size;
-        }
-
-        if (get_configuration()->min_recv_buffer_size() == 0)
-        {
-            socklen_t optlen = sizeof(recv_buf_size);
-            getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, &optlen);
-            set_receive_buffer_size(recv_buf_size);
-            if (get_configuration()->min_recv_buffer_size() < s_minimumSocketBuffer)
-            {
-                recv_buf_size = s_minimumSocketBuffer;
-                set_receive_buffer_size(s_minimumSocketBuffer);
-            }
-
-            setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, sizeof(recv_buf_size));
-            mReceiveBufferSize = recv_buf_size;
-        }
-        close(sockfd);
+        perror("Error creating socket");
+        return 1;
     }
 
-    if (get_configuration()->max_message_size_ > s_maximumMessageSize)
-    {
-        // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than 65000");
-        return false;
-    }
+    // if (descriptor_.min_send_buffer_size() == 0)
+    // {
+    //     socklen_t optlen = sizeof(send_buf_size);
+    //     getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, &optlen);
+    //     set_send_buffer_size(send_buf_size);
+    //     if (descriptor_.min_send_buffer_size() < s_minimumSocketBuffer)
+    //     {
+    //         set_send_buffer_size(s_minimumSocketBuffer);
+    //         send_buf_size = s_minimumSocketBuffer;
+    //     }
 
-    if (get_configuration()->max_message_size_ > get_configuration()->min_send_buffer_size())
-    {
-        // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than send_buffer_size");
-        return false;
-    }
+    //     setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &send_buf_size, sizeof(send_buf_size));
+    //     mSendBufferSize = send_buf_size;
+    // }
 
-    if (get_configuration()->max_message_size_ > get_configuration()->min_recv_buffer_size())
-    {
-        // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than receive_buffer_size");
-        return false;
-    }
+    // if (descriptor_.min_recv_buffer_size() == 0)
+    // {
+    //     socklen_t optlen = sizeof(recv_buf_size);
+    //     getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, &optlen);
+    //     set_receive_buffer_size(recv_buf_size);
+    //     if (descriptor_.min_recv_buffer_size() < s_minimumSocketBuffer)
+    //     {
+    //         recv_buf_size = s_minimumSocketBuffer;
+    //         set_receive_buffer_size(s_minimumSocketBuffer);
+    //     }
+
+    //     setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, sizeof(recv_buf_size));
+    //     mReceiveBufferSize = recv_buf_size;
+    // }
+    close(sockfd);
+
+    // if (descriptor_.max_message_size_ > s_maximumMessageSize)
+    // {
+    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than 65000");
+    //     return false;
+    // }
+
+    // if (descriptor_.max_message_size_ > descriptor_.min_send_buffer_size())
+    // {
+    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than send_buffer_size");
+    //     return false;
+    // }
+
+    // if (descriptor_.max_message_size_ > descriptor_.min_recv_buffer_size())
+    // {
+    //     // LOG_ERROR(TRANSPORT_MSG_OUT, "max_message_size_ cannot be greater than receive_buffer_size");
+    //     return false;
+    // }
 
     // TODO(Ricardo) Create an event that update this list.
     get_ips(currentInterfaces);
@@ -218,10 +200,10 @@ bool UDPTransportInterface::send(
     const std::chrono::microseconds &timeout)
 {
     (void)timeout;
-    if (send_buffer_size > get_configuration()->min_send_buffer_size())
-    {
-        return false;
-    }
+    // if (send_buffer_size > descriptor_.min_send_buffer_size())
+    // {
+    //     return false;
+    // }
 
     bool success = true;
     bool is_multicast_remote_address = IPLocator::isMulticast(remote_locator);

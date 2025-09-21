@@ -19,7 +19,6 @@
 #include "UDPv6Transport.h"
 #include <transport/TransportInterface.h>
 #include <transport/SenderResource.h>
-#include "UDPv6TransportDescriptor.h"
 
 namespace transport
 {
@@ -41,57 +40,19 @@ static void get_ipv6s(
                     { loc.locator.kind = LOCATOR_KIND_UDPv6; });
 }
 
-// static void get_ipv6s_unique_interfaces(
-//     std::vector<IPFinder::info_IP> &locNames,
-//     bool return_loopback = false)
-// {
-//     get_ipv6s(locNames, return_loopback);
-//     std::sort(locNames.begin(), locNames.end(),
-//                 [](const IPFinder::info_IP &a, const IPFinder::info_IP &b) -> bool
-//                 {
-//                     return a.dev < b.dev;
-//                 });
-//     auto new_end = std::unique(locNames.begin(), locNames.end(),
-//                                 [](const IPFinder::info_IP &a, const IPFinder::info_IP &b) -> bool
-//                                 {
-//                                     return a.type != IPFinder::IP6_LOCAL && b.type != IPFinder::IP6_LOCAL && a.dev == b.dev;
-//                                 });
-//     locNames.erase(new_end, locNames.end());
-// }
-
-UDPv6Transport::UDPv6Transport(
-    const UDPv6TransportDescriptor &descriptor)
-    : UDPTransportInterface(LOCATOR_KIND_UDPv6)
-    , descriptor_(descriptor)
-{
-    mSendBufferSize = descriptor.send_buffer_size_;
-    mReceiveBufferSize = descriptor.recv_buffer_size_;
-}
-
 UDPv6Transport::UDPv6Transport()
     : UDPTransportInterface(LOCATOR_KIND_UDPv6)
 {
 }
 
+// UDPv6Transport::UDPv6Transport()
+//     : UDPTransportInterface(LOCATOR_KIND_UDPv6)
+// {
+// }
+
 UDPv6Transport::~UDPv6Transport()
 {
     clean();
-}
-
-UDPv6TransportDescriptor::UDPv6TransportDescriptor()
-    : UDPTransportDescriptor()
-{
-}
-
-TransportInterface *UDPv6TransportDescriptor::create_transport() const
-{
-    return new UDPv6Transport(*this);
-}
-
-bool UDPv6TransportDescriptor::operator==(
-    const UDPv6TransportDescriptor &t) const
-{
-    return (UDPTransportDescriptor::operator==(t));
 }
 
 bool UDPv6Transport::getDefaultMetatrafficMulticastLocators(
@@ -119,28 +80,6 @@ bool UDPv6Transport::getDefaultMetatrafficUnicastLocators(
     return true;
 }
 
-// bool UDPv6Transport::getDefaultUnicastLocators(
-//     LocatorList &locators,
-//     uint32_t unicast_port) const
-// {
-//     Locator locator;
-//     locator.kind = LOCATOR_KIND_UDPv6;
-//     locator.set_invalid_address();
-//     fillUnicastLocator(locator, unicast_port);
-//     locators.push_back(locator);
-
-//     return true;
-// }
-
-void UDPv6Transport::AddDefaultOutputLocator(
-    LocatorList &defaultList)
-{
-    // TODO What is the default IPv6 address?
-    Locator temp;
-    IPLocator::createLocator(LOCATOR_KIND_UDPv6, "ff1e::ffff:efff:1", 0, temp);
-    defaultList.push_back(temp);
-}
-
 bool UDPv6Transport::compare_locator_ip(
     const Locator &lh,
     const Locator &rh) const
@@ -153,11 +92,6 @@ bool UDPv6Transport::compare_locator_ip_and_port(
     const Locator &rh) const
 {
     return IPLocator::compareAddressAndPhysicalPort(lh, rh);
-}
-
-const UDPTransportDescriptor *UDPv6Transport::configuration() const
-{
-    return &descriptor_;
 }
 
 void UDPv6Transport::get_ips(
@@ -205,18 +139,6 @@ LocatorList UDPv6Transport::NormalizeLocator(
     }
 
     return list;
-}
-
-void UDPv6Transport::set_receive_buffer_size(
-    uint32_t size)
-{
-    descriptor_.recv_buffer_size_ = size;
-}
-
-void UDPv6Transport::set_send_buffer_size(
-    uint32_t size)
-{
-    descriptor_.send_buffer_size_ = size;
 }
 
 void UDPv6Transport::update_network_interfaces()

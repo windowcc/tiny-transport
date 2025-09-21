@@ -22,13 +22,17 @@
 #include <string>
 #include <memory>
 
-
 namespace transport
 {
 class TransportInterface;
 
 //! Default time to live (TTL)
 constexpr uint8_t s_defaultTTL = 1;
+
+//! Default maximum message size
+constexpr uint32_t s_maximumMessageSize = 65500;
+//! Default maximum initial peers range
+constexpr uint32_t s_maximumInitialPeersRange = 4;
 
 /**
  * Virtual base class for the data type used to define transport configuration.
@@ -72,7 +76,7 @@ struct TransportDescriptorInterface
      * corresponding to this descriptor. This provides an interface to the TransportFactory
      * to create the transports without the need to know about their type
      */
-    virtual TransportInterface *create_transport() const = 0;
+    virtual TransportInterface *create_transport() const {return nullptr;};
 
     virtual uint32_t min_send_buffer_size() const
     {
@@ -121,6 +125,50 @@ struct TransportDescriptorInterface
 
     //! Number of channels opened with each initial remote peer.
     uint32_t max_initial_peers_range_;
+};
+
+
+
+template<typename Descriptor>
+class TransportDescriptor;
+
+struct UDPv4Descriptor
+{
+
+};
+
+template<>
+class TransportDescriptor<UDPv4Descriptor> : public TransportDescriptorInterface
+{
+public:
+    TransportDescriptor()
+    : TransportDescriptorInterface(s_maximumMessageSize, s_maximumInitialPeersRange)
+    {
+
+    }
+
+    virtual ~TransportDescriptor(){}
+public:
+    virtual TransportInterface *create_transport() const override;
+};
+
+struct UDPv6Descriptor
+{
+
+};
+template<>
+class TransportDescriptor<UDPv6Descriptor> : public TransportDescriptorInterface
+{
+public:
+    TransportDescriptor()
+    : TransportDescriptorInterface(s_maximumMessageSize, s_maximumInitialPeersRange)
+    {
+
+    }
+
+    virtual ~TransportDescriptor(){}
+public:
+    virtual TransportInterface *create_transport() const override;
 };
 
 } // namespace transport

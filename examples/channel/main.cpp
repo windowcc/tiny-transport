@@ -5,10 +5,9 @@
 #include <atomic>
 #include <thread>
 #include <uvw.hpp>
-#include <transport/TransportFactory.h>
-#include <transport/type.h>
-#include <udp/UDPv4TransportDescriptor.h>
 #include <IPLocator.h>
+#include <transport/type.h>
+#include <transport/TransportFactory.h>
 #include <transport/TransportInterface.h>
 
 using namespace transport;
@@ -42,7 +41,7 @@ void do_recv()
 {
     Locator local_locator;
     IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,local_locator);
-    factory->build_receiver_resources(local_locator,recv_resource_list_,65535);
+    factory->build_receiver_resources(recv_resource_list_,local_locator,65535);
 
     for(auto it : recv_resource_list_)
     {
@@ -62,6 +61,7 @@ int main(int argc, char ** argv)
 {
     auto exit = [](int)
     {
+        uvw::loop::get_default()->stop();
         uvw::loop::get_default()->close();
     };
     ::signal(SIGINT  , exit);
@@ -76,7 +76,7 @@ int main(int argc, char ** argv)
     ::signal(SIGHUP  , exit);
 #endif
 
-    UDPv4TransportDescriptor desc;
+    TransportDescriptor<UDPv4Descriptor> desc;
     if(!factory)
     {
         factory = std::make_shared<TransportFactory>();

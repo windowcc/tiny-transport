@@ -40,39 +40,19 @@ static void get_ipv4s(
                     { loc.locator.kind = LOCATOR_KIND_UDPv4; });
 }
 
-UDPv4Transport::UDPv4Transport(
-    const UDPv4TransportDescriptor &descriptor)
-    : UDPTransportInterface(LOCATOR_KIND_UDPv4)
-    , descriptor_(descriptor)
-{
-    mSendBufferSize = descriptor.send_buffer_size_;
-    mReceiveBufferSize = descriptor.recv_buffer_size_;
-}
-
 UDPv4Transport::UDPv4Transport()
     : UDPTransportInterface(LOCATOR_KIND_UDPv4)
 {
 }
 
+// UDPv4Transport::UDPv4Transport()
+//     : UDPTransportInterface(LOCATOR_KIND_UDPv4)
+// {
+// }
+
 UDPv4Transport::~UDPv4Transport()
 {
     clean();
-}
-
-UDPv4TransportDescriptor::UDPv4TransportDescriptor()
-    : UDPTransportDescriptor()
-{
-}
-
-TransportInterface *UDPv4TransportDescriptor::create_transport() const
-{
-    return new UDPv4Transport(*this);
-}
-
-bool UDPv4TransportDescriptor::operator==(
-    const UDPv4TransportDescriptor &t) const
-{
-    return (UDPTransportDescriptor::operator==(t));
 }
 
 bool UDPv4Transport::getDefaultMetatrafficMulticastLocators(
@@ -100,15 +80,6 @@ bool UDPv4Transport::getDefaultMetatrafficUnicastLocators(
     return true;
 }
 
-void UDPv4Transport::AddDefaultOutputLocator(
-    LocatorList &defaultList)
-{
-    Locator locator;
-    IPLocator::createLocator(LOCATOR_KIND_UDPv4, DEFAULT_METATRAFFIC_MULTICAST_ADDRESS,
-                                descriptor_.m_output_udp_socket, locator);
-    defaultList.push_back(locator);
-}
-
 bool UDPv4Transport::compare_locator_ip(
     const Locator &lh,
     const Locator &rh) const
@@ -121,11 +92,6 @@ bool UDPv4Transport::compare_locator_ip_and_port(
     const Locator &rh) const
 {
     return IPLocator::compareAddressAndPhysicalPort(lh, rh);
-}
-
-const UDPTransportDescriptor *UDPv4Transport::configuration() const
-{
-    return &descriptor_;
 }
 
 void UDPv4Transport::get_ips(
@@ -201,18 +167,6 @@ LocatorList UDPv4Transport::NormalizeLocator(
     }
 
     return list;
-}
-
-void UDPv4Transport::set_receive_buffer_size(
-    uint32_t size)
-{
-    descriptor_.recv_buffer_size_ = size;
-}
-
-void UDPv4Transport::set_send_buffer_size(
-    uint32_t size)
-{
-    descriptor_.send_buffer_size_ = size;
 }
 
 void UDPv4Transport::update_network_interfaces()

@@ -20,15 +20,9 @@
 #include <memory>
 #include <transport/SenderResource.h>
 #include <transport/ReceiverResource.h>
-#include <transport/TransportDescriptorInterface.h>
 
 namespace transport
 {
-
-//! Default maximum message size
-constexpr uint32_t s_maximumMessageSize = 65500;
-//! Default maximum initial peers range
-constexpr uint32_t s_maximumInitialPeersRange = 4;
 //! Default minimum socket buffer
 constexpr uint32_t s_minimumSocketBuffer = 65536;
 //! Default IPv4 address
@@ -42,6 +36,7 @@ using ReceiverResourceList = std::vector<std::shared_ptr<ReceiverResource>>;
 
 
 class PortParameters;
+class TransportDescriptorInterface;
 /**
  * Interface against which to implement a transport layer, decoupled from TRANSPORT internals.
  * TransportInterface expects the user to implement a logical equivalence between Locators and protocol-specific "channels".
@@ -118,12 +113,7 @@ public:
     virtual LocatorList NormalizeLocator(
         const Locator &locator) = 0;
 
-    //! Return the transport configuration (Transport Descriptor)
-    virtual TransportDescriptorInterface *get_configuration() = 0;
-
-    //! Add default output locator to the locator list
-    virtual void AddDefaultOutputLocator(
-        LocatorList &defaultList) = 0;
+    // virtual TransportDescriptorInterface *get_configuration() = 0;
 
     //! Add metatraffic multicast locator with the given port
     virtual bool getDefaultMetatrafficMulticastLocators(
@@ -155,11 +145,6 @@ public:
     virtual bool fillUnicastLocator(
         Locator &locator,
         uint32_t well_known_port) const = 0;
-
-    /**
-     * @return The maximum datagram size for reception supported by the transport
-     */
-    virtual uint32_t max_recv_buffer_size() const = 0;
 
     /**
      * shutdown method to close the connections of the transports.

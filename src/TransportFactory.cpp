@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <transport/TransportFactory.h>
-#include <transport/TransportDescriptorInterface.h>
 #include "IPLocator.h"
 
 namespace transport
@@ -47,9 +46,9 @@ bool TransportFactory::build_receiver_resources(
     bool returnedValue = false;
     for (auto &transport : registered_transports_)
     {
-        uint32_t max_recv_buffer_size = (std::min)(
-            transport->max_recv_buffer_size(), receiver_max_message_size);
-        returnedValue |= transport->OpenInputChannel(receiver_resources_list, locator, max_recv_buffer_size);
+        // uint32_t max_recv_buffer_size = (std::min)(
+        //     transport->max_recv_buffer_size(), receiver_max_message_size);
+        returnedValue |= transport->OpenInputChannel(receiver_resources_list, locator, receiver_max_message_size);
     }
     return returnedValue;
 }
@@ -67,7 +66,7 @@ bool TransportFactory::register_transport(
     {
         if (transport->init())
         {
-            minSendBufferSize = transport->get_configuration()->min_send_buffer_size();
+            // minSendBufferSize = transport->get_configuration()->min_send_buffer_size();
             registered_transports_.emplace_back(std::move(transport));
             wasRegistered = true;
         }

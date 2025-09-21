@@ -8,6 +8,7 @@ set(${PROJECT_NAME}_udp_source_files
 
 set(${PROJECT_NAME}_source_files
     TransportFactory.cpp
+    TransportDescriptorInterface.cpp
     IPFinder.cpp
     IPLocator.cpp
 )
