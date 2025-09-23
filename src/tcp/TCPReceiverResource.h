@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2019 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @file Types.h
- */
+#ifndef TRANSPORT_UDP_CHANNEL_RESOURCE_INFO_
+#define TRANSPORT_UDP_CHANNEL_RESOURCE_INFO_
 
-#ifndef TINY_TRANSPORT_HPP_
-#define TINY_TRANSPORT_HPP_
+#include <uvw.hpp>
+#include "IPLocator.h"
+#include <transport/type.h>
+#include <transport/ReceiverResource.h>
 
-#include "transport/ReceiverResource.h"
-#include "transport/SenderResource.h"
-#include "transport/TransportFactory.h"
-#include "transport/TransportInterface.h"
-#include "transport/TransportDescriptorInterface.h"
+namespace transport
+{
 
-#endif // ! TINY_TRANSPORT_HPP_
+
+} // namespace transport
+
+#endif // TRANSPORT_UDP_CHANNEL_RESOURCE_INFO_

@@ -46,7 +46,7 @@ constexpr uint32_t s_maximumInitialPeersRange = 4;
  *
  * @ingroup TRANSPORT_MODULE
  * */
-struct TransportDescriptorInterface
+struct TransportDescriptorInterface : public std::enable_shared_from_this<TransportDescriptorInterface>
 {
     //! Constructor
     TransportDescriptorInterface(

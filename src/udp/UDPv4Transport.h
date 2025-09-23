@@ -40,7 +40,8 @@ namespace transport
 class UDPv4Transport : public UDPTransportInterface
 {
 public:
-    UDPv4Transport();
+    UDPv4Transport(
+        std::shared_ptr<TransportDescriptorInterface> descriptor);
 
     virtual ~UDPv4Transport() override;
 
@@ -85,6 +86,8 @@ protected:
     void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) override;
+private:
+    std::shared_ptr<TransportDescriptorInterface> descriptor_;
 };
 
 const char *const DEFAULT_METATRAFFIC_MULTICAST_ADDRESS = "239.255.0.1";

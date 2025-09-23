@@ -1,4 +1,4 @@
-// Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2018 Proyectos y Sistemas de Mantenimiento SL (eProsima).
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,18 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "TCPReceiverResource.h"
 
-/**
- * @file Types.h
- */
+namespace transport
+{
 
-#ifndef TINY_TRANSPORT_HPP_
-#define TINY_TRANSPORT_HPP_
 
-#include "transport/ReceiverResource.h"
-#include "transport/SenderResource.h"
-#include "transport/TransportFactory.h"
-#include "transport/TransportInterface.h"
-#include "transport/TransportDescriptorInterface.h"
-
-#endif // ! TINY_TRANSPORT_HPP_
+} // namespace transport

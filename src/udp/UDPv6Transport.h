@@ -40,7 +40,8 @@ namespace transport
 class UDPv6Transport : public UDPTransportInterface
 {
 public:
-    UDPv6Transport();
+    UDPv6Transport(
+        std::shared_ptr<TransportDescriptorInterface> descriptor);
 
     virtual ~UDPv6Transport() override;
 
@@ -82,6 +83,8 @@ protected:
     void get_ips(
         std::vector<IPFinder::info_IP> &locNames,
         bool return_loopback = false) override;
+private:
+    std::shared_ptr<TransportDescriptorInterface> descriptor_;
 };
 
 } // namespace transport

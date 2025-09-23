@@ -6,9 +6,7 @@
 #include <thread>
 #include <uvw.hpp>
 #include <IPLocator.h>
-#include <transport/type.h>
-#include <transport/TransportFactory.h>
-#include <transport/TransportInterface.h>
+#include <transport.h>
 
 using namespace transport;
 
@@ -23,11 +21,14 @@ void do_send()
 {
     Locator local_locator,remote_locator;
     IPLocator::createLocator(LOCATOR_KIND_UDPv4,"0.0.0.0",30490,local_locator);
-    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,remote_locator);
-    factory->build_send_resources(send_resource_list_,local_locator);
-
     LocatorList locators;
-    locators.push_back(remote_locator);
+    factory->default_metatraffic_multicast_locators(locators,30490);
+
+    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,remote_locator);
+    factory->build_send_resources(send_resource_list_,*(locators.begin()));
+
+    // LocatorList locators;
+    // locators.push_back(remote_locator);
     octet *data = new octet[12];
     std::string str = "Hello,World!!!";
     memcpy(data,str.c_str(),str.length());
@@ -39,9 +40,13 @@ void do_send()
 
 void do_recv()
 {
-    Locator local_locator;
-    IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,local_locator);
-    factory->build_receiver_resources(recv_resource_list_,local_locator,65535);
+    // Locator local_locator;
+    // IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,local_locator);
+
+    LocatorList locators;
+    factory->default_metatraffic_multicast_locators(locators,30490);
+
+    factory->build_receiver_resources(recv_resource_list_, *(locators.begin()) ,65535);
 
     for(auto it : recv_resource_list_)
     {
@@ -50,7 +55,8 @@ void do_recv()
                                     const Locator& local_locator,
                                     const Locator& remote_locator)
         {
-            std::cout << "receive message : " << std::endl;
+            std::cout << "receive message : " <<
+                std::string(reinterpret_cast<const char*>(data),size) << std::endl;
         });
     }
 }

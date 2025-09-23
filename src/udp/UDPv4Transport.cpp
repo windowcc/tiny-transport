@@ -18,6 +18,7 @@
 #include <transport/SenderResource.h>
 #include <transport/ReceiverResource.h>
 #include <transport/TransportInterface.h>
+#include <transport/TransportDescriptorInterface.h>
 #include "UDPv4Transport.h"
 #include "IPLocator.h"
 
@@ -40,8 +41,10 @@ static void get_ipv4s(
                     { loc.locator.kind = LOCATOR_KIND_UDPv4; });
 }
 
-UDPv4Transport::UDPv4Transport()
+UDPv4Transport::UDPv4Transport(
+    std::shared_ptr<TransportDescriptorInterface> descriptor)
     : UDPTransportInterface(LOCATOR_KIND_UDPv4)
+    , descriptor_(descriptor)
 {
 }
 
@@ -105,32 +108,37 @@ bool UDPv4Transport::open_input_channel(
     {
         return false;
     }
-    // UDPReceiverResource *p_channel_resource;
+
+    auto socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
+    auto recv_resource = std::make_shared<UDPReceiverResource>(this, socket, maxMsgSize, locator);
+
     if (IPLocator::isMulticast(locator))
     {
-        auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
-        auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
-        if (recv_socket->bind("0.0.0.0", locator.port, uvw::details::uvw_udp_flags::REUSEADDR) < 0 ||
-                !recv_socket->multicast_membership(IPLocator::getIpByLocatorv4(locator), "0.0.0.0",uvw::udp_handle::membership::JOIN_GROUP))
+        
+        if (socket->bind("0.0.0.0", locator.port, uvw::details::uvw_udp_flags::REUSEADDR) < 0 ||
+                !socket->multicast_membership(IPLocator::getIpByLocatorv4(locator), "0.0.0.0",uvw::udp_handle::membership::JOIN_GROUP))
         {
             return false;
         }
 
-        recv_socket->recv();
+        if(descriptor_ && descriptor_->ttl_)
+        {
+            socket->multicast_ttl(descriptor_->ttl_);
+        }
         receiver_resource_list.push_back(recv_resource);
     }
     else
     {
-        auto recv_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
-        auto recv_resource = std::make_shared<UDPReceiverResource>(this, recv_socket, maxMsgSize, locator);
-        if (recv_socket->bind(IPLocator::toIPv4string(locator), locator.port) < 0)
+        if (socket->bind(IPLocator::toIPv4string(locator), locator.port) < 0)
         {
             return false;
         }
-        recv_socket->recv();
         receiver_resource_list.push_back(recv_resource);
     }
-
+    if(socket)
+    {
+        socket->recv();
+    }
     return true;
 }
 

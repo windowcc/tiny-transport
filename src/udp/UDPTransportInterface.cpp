@@ -135,10 +135,6 @@ bool UDPTransportInterface::send(
     const std::chrono::microseconds &timeout)
 {
     (void)timeout;
-    // if (send_buffer_size > descriptor_.min_send_buffer_size())
-    // {
-    //     return false;
-    // }
 
     bool success = true;
     bool is_multicast_remote_address = IPLocator::isMulticast(remote_locator);

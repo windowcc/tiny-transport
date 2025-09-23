@@ -40,8 +40,10 @@ static void get_ipv6s(
                     { loc.locator.kind = LOCATOR_KIND_UDPv6; });
 }
 
-UDPv6Transport::UDPv6Transport()
+UDPv6Transport::UDPv6Transport(
+    std::shared_ptr<TransportDescriptorInterface> descriptor)
     : UDPTransportInterface(LOCATOR_KIND_UDPv6)
+    , descriptor_(descriptor)
 {
 }
 

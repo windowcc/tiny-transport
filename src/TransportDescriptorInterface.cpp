@@ -22,12 +22,14 @@ namespace transport
 
 TransportInterface *TransportDescriptor<UDPv4Descriptor>::create_transport() const
 {
-    return new UDPv4Transport();
+    return new UDPv4Transport(
+        std::make_shared<TransportDescriptor<UDPv4Descriptor>>(*this));
 }
 
 TransportInterface *TransportDescriptor<UDPv6Descriptor>::create_transport() const
 {
-    return new UDPv6Transport();
+    return new UDPv6Transport(
+        std::make_shared<TransportDescriptor<UDPv6Descriptor>>(*this));
 }
 
 
