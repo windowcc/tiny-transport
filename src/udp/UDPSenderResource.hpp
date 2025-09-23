@@ -31,11 +31,11 @@ public:
         std::shared_ptr<uvw::udp_handle> socket,
         bool only_multicast_purpose = false,
         bool whitelisted = false)
-        : SenderResource(transport.kind())
-        , socket_(std::move(socket))
-        , only_multicast_purpose_(only_multicast_purpose)
-        , whitelisted_(whitelisted)
-        , transport_(transport)
+    : SenderResource()
+    , socket_(std::move(socket))
+    , only_multicast_purpose_(only_multicast_purpose)
+    , whitelisted_(whitelisted)
+    , transport_(transport)
     {
         send_lambda_ = [this, &transport](
                             const octet *data,
@@ -50,8 +50,7 @@ public:
 
     virtual ~UDPSenderResource()
     {
-        // socket_.cancel();
-        // socket_.close();
+        // socket_->close();
     }
 
 private:

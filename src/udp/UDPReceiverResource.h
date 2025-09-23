@@ -22,22 +22,12 @@
 
 namespace transport
 {
-class Socket;
-    class SocketLocator;
 class UDPTransportInterface;
-
-typedef std::shared_ptr<Socket> UDPSocket;
-
-struct SocketLocator
-{
-    std::string ip {};
-    unsigned int port {0};
-};
 
 using Callback = std::function<void(const unsigned char* data,
                                     const uint32_t size,
-                                    const SocketLocator& local_locator,
-                                    const SocketLocator& remote_locator)>;
+                                    const Locator& local_locator,
+                                    const Locator& remote_locator)>;
 
 class UDPReceiverResource : public ReceiverResource
 {

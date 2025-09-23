@@ -47,8 +47,8 @@ void do_recv()
     {
         it->register_receiver([](const unsigned char* data,
                                     const uint32_t size,
-                                    const SocketLocator& local_locator,
-                                    const SocketLocator& remote_locator)
+                                    const Locator& local_locator,
+                                    const Locator& remote_locator)
         {
             std::cout << "receive message : " << std::endl;
         });

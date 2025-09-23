@@ -33,11 +33,12 @@ UDPReceiverResource::UDPReceiverResource(
     socket_->on<uvw::udp_data_event>([&](const uvw::udp_data_event &event, uvw::udp_handle &){
         if(callback_)
         {
-            SocketLocator remote_locator({event.sender.ip, event.sender.port});
+            Locator remote_locator;
+            IPLocator::createLocator(transport_->kind(),
+                event.sender.ip, event.sender.port,remote_locator);
+
             callback_(reinterpret_cast<unsigned char*>(event.data.get()),
-                    event.length,
-                    {IPLocator::getIpByLocatorv4(locator), locator.port},
-                    remote_locator);
+                    event.length, locator, remote_locator);
         }
     });
 

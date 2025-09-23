@@ -67,23 +67,12 @@ public:
 
     virtual ~SenderResource() = default;
 
-    int32_t kind() const
-    {
-        return transport_kind_;
-    }
-
 protected:
-    SenderResource(
-        int32_t transport_kind)
-        : transport_kind_(transport_kind)
-    {
-    }
+    SenderResource() = default;
 
-    int32_t transport_kind_;
     SendCallback send_lambda_;
 
 private:
-    SenderResource() = delete;
     SenderResource(
         const SenderResource &) = delete;
     SenderResource &operator=(

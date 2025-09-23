@@ -20,8 +20,6 @@
 
 namespace transport
 {
-
-class SocketLocator;
 /**
  * RAII object that encapsulates the Receive operation over one channel in an unknown transport.
  * A Receiver resource is always univocally associated to a transport channel; the
@@ -75,8 +73,8 @@ public:
     virtual void register_receiver(
         const std::function<void(const unsigned char* data,
                                     const uint32_t size,
-                                    const SocketLocator& local_locator,
-                                    const SocketLocator& remote_locator)> &callback) = 0;
+                                    const Locator& local_locator,
+                                    const Locator& remote_locator)> &callback) = 0;
 
     inline uint32_t max_message_size() const
     {
@@ -99,8 +97,8 @@ protected:
     uint32_t max_message_size_;
     std::function<void(const unsigned char* data,
                             const uint32_t size,
-                            const SocketLocator& local_locator,
-                            const SocketLocator& remote_locator)> recv_callback_;
+                            const Locator& local_locator,
+                            const Locator& remote_locator)> recv_callback_;
     std::function<bool(const Locator &)> locator_check_callback_;
 };
 
