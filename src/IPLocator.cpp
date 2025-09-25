@@ -587,11 +587,11 @@ bool IPLocator::setLogicalPort(
     uint16_t port)
 {
     uint16_t *loc_logical = reinterpret_cast<uint16_t *>(&locator.port);
-#if FASTDDS_IS_BIG_ENDIAN_TARGET
+#if IS_BIG_ENDIAN_TARGET
     loc_logical[0] = port; // Logical port is stored at 0th and 1st bytes of port
 #else
     loc_logical[1] = port; // Logical port is stored at 2nd and 3rd bytes of port
-#endif // if FASTDDS_IS_BIG_ENDIAN_TARGET
+#endif // if IS_BIG_ENDIAN_TARGET
     return port != 0;
 }
 
@@ -599,11 +599,11 @@ uint16_t IPLocator::getLogicalPort(
     const Locator &locator)
 {
     const uint16_t *loc_logical = reinterpret_cast<const uint16_t *>(&locator.port);
-#if FASTDDS_IS_BIG_ENDIAN_TARGET
+#if IS_BIG_ENDIAN_TARGET
     return loc_logical[0];
 #else
     return loc_logical[1];
-#endif // if FASTDDS_IS_BIG_ENDIAN_TARGET
+#endif // if IS_BIG_ENDIAN_TARGET
 }
 
 bool IPLocator::setPhysicalPort(
@@ -611,11 +611,11 @@ bool IPLocator::setPhysicalPort(
     uint16_t port)
 {
     uint16_t *loc_physical = reinterpret_cast<uint16_t *>(&locator.port);
-#if FASTDDS_IS_BIG_ENDIAN_TARGET
+#if IS_BIG_ENDIAN_TARGET
     loc_physical[1] = port; // Physical port is stored at 0 and 1st bytes of port
 #else
     loc_physical[0] = port; // Physical port is stored at 0 and 1st bytes of port
-#endif // if FASTDDS_IS_BIG_ENDIAN_TARGET
+#endif // if IS_BIG_ENDIAN_TARGET
     return port != 0;
 }
 
@@ -623,11 +623,11 @@ uint16_t IPLocator::getPhysicalPort(
     const Locator &locator)
 {
     const uint16_t *loc_physical = reinterpret_cast<const uint16_t *>(&locator.port);
-#if FASTDDS_IS_BIG_ENDIAN_TARGET
+#if IS_BIG_ENDIAN_TARGET
     return loc_physical[1];
 #else
     return loc_physical[0];
-#endif // if FASTDDS_IS_BIG_ENDIAN_TARGET
+#endif // if IS_BIG_ENDIAN_TARGET
 }
 
 // TCPv4

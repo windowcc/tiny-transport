@@ -72,6 +72,7 @@ bool UDPTransportInterface::open_output_channel(
     if(send_socket)
     {
         send_socket->bind(IPLocator::toIPv4string(locator), locator.port);
+
         sender_resource_list.emplace_back(
             static_cast<SenderResource *>(new UDPSenderResource(*this, send_socket, false, true))
         );

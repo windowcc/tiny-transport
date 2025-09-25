@@ -26,11 +26,21 @@ TransportInterface *TransportDescriptor<UDPv4Descriptor>::create_transport() con
         std::make_shared<TransportDescriptor<UDPv4Descriptor>>(*this));
 }
 
+int32_t TransportDescriptor<UDPv4Descriptor>::transport_kind() const
+{
+    return LOCATOR_KIND_UDPv4;
+}
+
 TransportInterface *TransportDescriptor<UDPv6Descriptor>::create_transport() const
 {
     return new UDPv6Transport(
         std::make_shared<TransportDescriptor<UDPv6Descriptor>>(*this));
 }
 
+
+int32_t TransportDescriptor<UDPv6Descriptor>::transport_kind() const
+{
+    return LOCATOR_KIND_UDPv6;
+}
 
 } // namespace transport

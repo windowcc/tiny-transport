@@ -78,6 +78,8 @@ struct TransportDescriptorInterface : public std::enable_shared_from_this<Transp
      */
     virtual TransportInterface *create_transport() const {return nullptr;};
 
+    virtual int32_t transport_kind() const = 0;
+
     virtual uint32_t min_send_buffer_size() const
     {
         return send_buffer_size_;
@@ -150,6 +152,8 @@ public:
     virtual ~TransportDescriptor(){}
 public:
     virtual TransportInterface *create_transport() const override;
+
+    virtual int32_t transport_kind() const override;
 };
 
 struct UDPv6Descriptor
@@ -169,6 +173,8 @@ public:
     virtual ~TransportDescriptor(){}
 public:
     virtual TransportInterface *create_transport() const override;
+
+    virtual int32_t transport_kind() const override;
 };
 
 } // namespace transport

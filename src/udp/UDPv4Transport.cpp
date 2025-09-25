@@ -133,6 +133,7 @@ bool UDPv4Transport::open_input_channel(
         {
             return false;
         }
+
         receiver_resource_list.push_back(recv_resource);
     }
     if(socket)
