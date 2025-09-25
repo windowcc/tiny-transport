@@ -27,9 +27,11 @@ namespace transport
 {
 
 UDPTransportInterface::UDPTransportInterface(
-    int32_t transport_kind)
+    int32_t transport_kind,
+    std::shared_ptr<uvw::loop> loop)
     : TransportInterface()
     , transport_kind_(transport_kind)
+    , loop_(loop)
     , mSendBufferSize(0)
     , mReceiveBufferSize(0)
 {
@@ -68,7 +70,7 @@ bool UDPTransportInterface::open_output_channel(
         return false;
     }
 
-    auto send_socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
+    auto send_socket = loop_->resource<uvw::udp_handle>();
     if(send_socket)
     {
         send_socket->bind(IPLocator::toIPv4string(locator), locator.port);

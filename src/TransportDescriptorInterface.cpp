@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <transport/TransportDescriptorInterface.h>
+#include <uvw.hpp>
 #include "udp/UDPv4Transport.h"
 #include "udp/UDPv6Transport.h"
 
@@ -20,10 +21,10 @@
 namespace transport
 {
 
-TransportInterface *TransportDescriptor<UDPv4Descriptor>::create_transport() const
+TransportInterface *TransportDescriptor<UDPv4Descriptor>::create_transport(std::shared_ptr<uvw::loop> loop) const
 {
     return new UDPv4Transport(
-        std::make_shared<TransportDescriptor<UDPv4Descriptor>>(*this));
+        loop, std::make_shared<TransportDescriptor<UDPv4Descriptor>>(*this));
 }
 
 int32_t TransportDescriptor<UDPv4Descriptor>::transport_kind() const
@@ -31,10 +32,10 @@ int32_t TransportDescriptor<UDPv4Descriptor>::transport_kind() const
     return LOCATOR_KIND_UDPv4;
 }
 
-TransportInterface *TransportDescriptor<UDPv6Descriptor>::create_transport() const
+TransportInterface *TransportDescriptor<UDPv6Descriptor>::create_transport(std::shared_ptr<uvw::loop> loop) const
 {
     return new UDPv6Transport(
-        std::make_shared<TransportDescriptor<UDPv6Descriptor>>(*this));
+        loop, std::make_shared<TransportDescriptor<UDPv6Descriptor>>(*this));
 }
 
 

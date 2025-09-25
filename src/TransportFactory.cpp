@@ -80,7 +80,7 @@ bool TransportFactory::register_transport(
 
     uint32_t minSendBufferSize = std::numeric_limits<uint32_t>::max();
 
-    std::unique_ptr<TransportInterface> transport(descriptor->create_transport());
+    std::unique_ptr<TransportInterface> transport(descriptor->create_transport(loop_));
 
     if (transport)
     {

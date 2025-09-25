@@ -41,8 +41,9 @@ static void get_ipv6s(
 }
 
 UDPv6Transport::UDPv6Transport(
+    std::shared_ptr<uvw::loop> loop,
     std::shared_ptr<TransportDescriptorInterface> descriptor)
-    : UDPTransportInterface(LOCATOR_KIND_UDPv6)
+    : UDPTransportInterface(LOCATOR_KIND_UDPv6, loop)
     , descriptor_(descriptor)
 {
 }

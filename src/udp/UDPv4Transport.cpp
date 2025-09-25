@@ -42,8 +42,9 @@ static void get_ipv4s(
 }
 
 UDPv4Transport::UDPv4Transport(
+    std::shared_ptr<uvw::loop> loop,
     std::shared_ptr<TransportDescriptorInterface> descriptor)
-    : UDPTransportInterface(LOCATOR_KIND_UDPv4)
+    : UDPTransportInterface(LOCATOR_KIND_UDPv4, loop)
     , descriptor_(descriptor)
 {
 }
@@ -109,7 +110,7 @@ bool UDPv4Transport::open_input_channel(
         return false;
     }
 
-    auto socket = uvw::loop::get_default()->resource<uvw::udp_handle>();
+    auto socket = loop_->resource<uvw::udp_handle>();
     auto recv_resource = std::make_shared<UDPReceiverResource>(this, socket, maxMsgSize, locator);
 
     if (IPLocator::isMulticast(locator))

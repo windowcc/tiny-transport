@@ -22,6 +22,11 @@
 #include <string>
 #include <memory>
 
+namespace uvw
+{
+    class loop;
+} // namespace uvw
+
 namespace transport
 {
 class TransportInterface;
@@ -76,7 +81,7 @@ struct TransportDescriptorInterface : public std::enable_shared_from_this<Transp
      * corresponding to this descriptor. This provides an interface to the TransportFactory
      * to create the transports without the need to know about their type
      */
-    virtual TransportInterface *create_transport() const {return nullptr;};
+    virtual TransportInterface *create_transport(std::shared_ptr<uvw::loop> loop) const {return nullptr;};
 
     virtual int32_t transport_kind() const = 0;
 
@@ -151,7 +156,7 @@ public:
 
     virtual ~TransportDescriptor(){}
 public:
-    virtual TransportInterface *create_transport() const override;
+    virtual TransportInterface *create_transport(std::shared_ptr<uvw::loop> loop) const override;
 
     virtual int32_t transport_kind() const override;
 };
@@ -172,7 +177,7 @@ public:
 
     virtual ~TransportDescriptor(){}
 public:
-    virtual TransportInterface *create_transport() const override;
+    virtual TransportInterface *create_transport(std::shared_ptr<uvw::loop> loop) const override;
 
     virtual int32_t transport_kind() const override;
 };

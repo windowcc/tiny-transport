@@ -124,6 +124,8 @@ public:
 protected:
     friend class UDPReceiverResource;
 
+    std::shared_ptr<uvw::loop> loop_;
+
     int32_t transport_kind_;
 
     // For UDPv6, the notion of channel corresponds to a port + direction tuple.
@@ -133,7 +135,8 @@ protected:
     uint32_t mReceiveBufferSize;
 
     UDPTransportInterface(
-        int32_t transport_kind);
+        int32_t transport_kind,
+        std::shared_ptr<uvw::loop> loop);
     // CBaseWorker *worker
     virtual bool compare_locator_ip(
         const Locator &lh,

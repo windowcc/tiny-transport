@@ -17,6 +17,11 @@
 
 #include "UDPTransportInterface.h"
 
+namespace uvw
+{
+    class loop;
+}
+
 namespace transport
 {
 
@@ -41,6 +46,7 @@ class UDPv4Transport : public UDPTransportInterface
 {
 public:
     UDPv4Transport(
+        std::shared_ptr<uvw::loop> loop,
         std::shared_ptr<TransportDescriptorInterface> descriptor);
 
     virtual ~UDPv4Transport() override;
