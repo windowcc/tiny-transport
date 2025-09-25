@@ -125,6 +125,7 @@ protected:
     friend class UDPReceiverResource;
 
     std::shared_ptr<uvw::loop> loop_;
+    std::vector<std::shared_ptr<uvw::udp_handle>> udp_handles_;
 
     int32_t transport_kind_;
 

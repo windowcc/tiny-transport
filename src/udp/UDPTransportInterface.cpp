@@ -70,10 +70,26 @@ bool UDPTransportInterface::open_output_channel(
         return false;
     }
 
-    auto send_socket = loop_->resource<uvw::udp_handle>();
+    
+
+    auto it = std::find_if(udp_handles_.begin(),udp_handles_.end(),[&locator](const std::shared_ptr<uvw::udp_handle> &handle)
+    {
+        auto addr = handle->sock();
+        return IPLocator::toIPv4string(locator) == addr.ip && 
+            locator.port == addr.port;
+    });
+    auto send_socket = it != udp_handles_.end() ? *it : loop_->resource<uvw::udp_handle>();
+
     if(send_socket)
     {
         send_socket->bind(IPLocator::toIPv4string(locator), locator.port);
+
+        auto addr = send_socket->sock();
+
+        if(it != udp_handles_.end())
+        {
+            udp_handles_.push_back(send_socket);
+        }
 
         sender_resource_list.emplace_back(
             static_cast<SenderResource *>(new UDPSenderResource(*this, send_socket, false, true))

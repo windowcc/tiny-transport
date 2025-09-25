@@ -26,11 +26,10 @@ UDPReceiverResource::UDPReceiverResource(
     const Locator &locator)
     : ReceiverResource(locator, maxMsgSize)
     , alive_(true)
-    , socket_(socket)
     , callback_(nullptr)
     , transport_(transport)
 {
-    socket_->on<uvw::udp_data_event>([&](const uvw::udp_data_event &event, uvw::udp_handle &){
+    socket->on<uvw::udp_data_event>([&](const uvw::udp_data_event &event, uvw::udp_handle &){
         if(callback_)
         {
             Locator remote_locator;
@@ -50,10 +49,6 @@ UDPReceiverResource::UDPReceiverResource(
 
 UDPReceiverResource::~UDPReceiverResource()
 {
-    if(socket_)
-    {
-        socket_->close();
-    }
 }
 
 void UDPReceiverResource::register_receiver(

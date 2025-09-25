@@ -15,10 +15,14 @@
 #ifndef TRANSPORT_UDP_CHANNEL_RESOURCE_INFO_
 #define TRANSPORT_UDP_CHANNEL_RESOURCE_INFO_
 
-#include <uvw.hpp>
 #include "IPLocator.h"
 #include <transport/type.h>
 #include <transport/ReceiverResource.h>
+
+namespace uvw
+{
+    class udp_handle;
+}
 
 namespace transport
 {
@@ -45,7 +49,6 @@ public:
 
 private:
     bool alive_;
-    std::shared_ptr<uvw::udp_handle> socket_;
     Callback callback_;
     UDPTransportInterface *transport_;
 

@@ -110,12 +110,18 @@ bool UDPv4Transport::open_input_channel(
         return false;
     }
 
-    auto socket = loop_->resource<uvw::udp_handle>();
+    auto it = std::find_if(udp_handles_.begin(),udp_handles_.end(),[&locator](const std::shared_ptr<uvw::udp_handle> &handle)
+    {
+        auto addr = handle->sock();
+        return IPLocator::toIPv4string(locator) == addr.ip && 
+            locator.port == addr.port;
+    });
+    auto socket = it != udp_handles_.end() ? *it : loop_->resource<uvw::udp_handle>();
+
     auto recv_resource = std::make_shared<UDPReceiverResource>(this, socket, maxMsgSize, locator);
 
     if (IPLocator::isMulticast(locator))
     {
-        
         if (socket->bind("0.0.0.0", locator.port, uvw::details::uvw_udp_flags::REUSEADDR) < 0 ||
                 !socket->multicast_membership(IPLocator::getIpByLocatorv4(locator), "0.0.0.0",uvw::udp_handle::membership::JOIN_GROUP))
         {
@@ -126,6 +132,12 @@ bool UDPv4Transport::open_input_channel(
         {
             socket->multicast_ttl(descriptor_->ttl_);
         }
+        
+        if(it != udp_handles_.end())
+        {
+            udp_handles_.push_back(socket);
+        }
+
         receiver_resource_list.push_back(recv_resource);
     }
     else

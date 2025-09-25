@@ -32,7 +32,7 @@ public:
         bool only_multicast_purpose = false,
         bool whitelisted = false)
     : SenderResource()
-    , socket_(std::move(socket))
+    , socket_(socket)
     , only_multicast_purpose_(only_multicast_purpose)
     , whitelisted_(whitelisted)
     , transport_(transport)
