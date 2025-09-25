@@ -32,25 +32,23 @@ public:
         bool only_multicast_purpose = false,
         bool whitelisted = false)
     : SenderResource()
-    , socket_(socket)
     , only_multicast_purpose_(only_multicast_purpose)
     , whitelisted_(whitelisted)
     , transport_(transport)
     {
-        send_lambda_ = [this, &transport](
+        send_lambda_ = [this, socket, &transport](
                             const octet *data,
                             uint32_t dataSize,
                             const LocatorList &locators,
                             const std::chrono::steady_clock::time_point &max_blocking_time_point) -> bool
         {
-            return transport.send(data, dataSize, socket_, locators, only_multicast_purpose_, whitelisted_,
+            return transport.send(data, dataSize, socket, locators, only_multicast_purpose_, whitelisted_,
                                     max_blocking_time_point);
         };
     }
 
     virtual ~UDPSenderResource()
     {
-        // socket_->close();
     }
 
 private:
@@ -62,7 +60,6 @@ private:
     UDPSenderResource &operator=(
         const SenderResource &) = delete;
 
-    std::shared_ptr<uvw::udp_handle> socket_;
     bool only_multicast_purpose_;
     bool whitelisted_;
     UDPTransportInterface &transport_;
