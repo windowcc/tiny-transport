@@ -65,6 +65,8 @@ public:
         return returned_value;
     }
 
+    virtual Locator locator() const = 0;
+
     virtual ~SenderResource() = default;
 
 protected:

@@ -56,19 +56,16 @@ public:
      * the given locator and returning a vector of Sender Resources associated with it.
      * @param locator Locator through which to send.
      */
-    bool build_send_resources(
-        SendResourceList &sender_resource_list,
+    std::shared_ptr<SenderResource> build_send_resources(
         const Locator &locator);
 
     /**
      * Walk over the list of transports, opening every possible channel that we can listen to
      * from the given locator, and returns a vector of Receiver Resources for this goal.
      * @param local Locator from which to listen.
-     * @param receiver_resources_list List that will be filled with the created ReceiverResources.
      * @param receiver_max_message_size Max message size allowed by the message receiver.
      */
-    bool build_receiver_resources(
-        ReceiverResourceList &receiver_resources_list,
+    std::shared_ptr<ReceiverResource> build_receiver_resources(
         Locator &local,
         uint32_t receiver_max_message_size);
 

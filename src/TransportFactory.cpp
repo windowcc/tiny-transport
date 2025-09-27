@@ -20,6 +20,9 @@
 namespace transport
 {
 
+static ReceiverResourceList receiver_resources_list;
+static SendResourceList sender_resource_list;
+
 TransportFactory::TransportFactory(std::shared_ptr<uvw::loop> loop)
     : loop_(loop)
     , max_message_size_between_transports_(std::numeric_limits<uint32_t>::max())
@@ -36,31 +39,48 @@ TransportFactory::~TransportFactory()
 
 }
 
-bool TransportFactory::build_send_resources(
-    SendResourceList &sender_resource_list,
+std::shared_ptr<SenderResource> TransportFactory::build_send_resources(
     const Locator &locator)
 {
-    bool returned_value = false;
+    // bool returned_value = false;
 
     for (auto &transport : registered_transports_)
     {
-        returned_value |= transport->open_output_channel(sender_resource_list, locator);
+        if(transport->kind() == locator.kind)
+        {
+            transport->open_output_channel(sender_resource_list, locator);
+        }
     }
 
-    return returned_value;
+    auto it = std::find_if(sender_resource_list.begin(),sender_resource_list.end(),[&locator](const auto &sender_resource)
+    {
+        return locator == sender_resource->locator();
+    });
+
+    return it != sender_resource_list.end() ? *it : nullptr;
 }
 
-bool TransportFactory::build_receiver_resources(
-    ReceiverResourceList &receiver_resources_list,
+std::shared_ptr<ReceiverResource> TransportFactory::build_receiver_resources(
     Locator &locator,
     uint32_t receiver_max_message_size)
 {
-    bool returnedValue = false;
     for (auto &transport : registered_transports_)
     {
-        returnedValue |= transport->open_input_channel(receiver_resources_list, locator, receiver_max_message_size);
+        if(transport->kind() == locator.kind)
+        {
+            if(!transport->open_input_channel(receiver_resources_list, locator, receiver_max_message_size))
+            {
+                return nullptr;
+            }
+            break;
+        }
     }
-    return returnedValue;
+    auto it = std::find_if(receiver_resources_list.begin(),receiver_resources_list.end(),[&locator](const auto &receiver_resource)
+    {
+        return locator == receiver_resource->locator();
+    });
+
+    return it != receiver_resources_list.end() ? *it : nullptr;
 }
 
 bool TransportFactory::register_transport(

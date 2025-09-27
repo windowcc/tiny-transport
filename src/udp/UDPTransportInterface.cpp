@@ -70,8 +70,6 @@ bool UDPTransportInterface::open_output_channel(
         return false;
     }
 
-    
-
     auto it = std::find_if(udp_handles_.begin(),udp_handles_.end(),[&locator](const std::shared_ptr<uvw::udp_handle> &handle)
     {
         auto addr = handle->sock();
@@ -92,7 +90,7 @@ bool UDPTransportInterface::open_output_channel(
         }
 
         sender_resource_list.emplace_back(
-            static_cast<SenderResource *>(new UDPSenderResource(*this, send_socket, false, true))
+            static_cast<SenderResource *>(new UDPSenderResource(locator, *this, send_socket, false, true))
         );
     }
 

@@ -27,11 +27,13 @@ class UDPSenderResource : public SenderResource
 {
 public:
     UDPSenderResource(
+        const Locator &locator,
         UDPTransportInterface &transport,
         std::shared_ptr<uvw::udp_handle> socket,
         bool only_multicast_purpose = false,
         bool whitelisted = false)
     : SenderResource()
+    , locator_(locator)
     , only_multicast_purpose_(only_multicast_purpose)
     , whitelisted_(whitelisted)
     , transport_(transport)
@@ -47,6 +49,11 @@ public:
         };
     }
 
+    virtual Locator locator() const final
+    {
+        return locator_;
+    }
+
     virtual ~UDPSenderResource()
     {
     }
@@ -60,6 +67,7 @@ private:
     UDPSenderResource &operator=(
         const SenderResource &) = delete;
 
+    Locator locator_;
     bool only_multicast_purpose_;
     bool whitelisted_;
     UDPTransportInterface &transport_;

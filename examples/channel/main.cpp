@@ -14,9 +14,6 @@ namespace {
 
 std::shared_ptr<TransportFactory> factory = nullptr;
 
-transport::SendResourceList send_resource_list_;
-transport::ReceiverResourceList recv_resource_list_;
-
 void do_send()
 {
     Locator local_locator,remote_locator;
@@ -25,17 +22,16 @@ void do_send()
     factory->default_metatraffic_multicast_locators(locators,30490);
 
     IPLocator::createLocator(LOCATOR_KIND_UDPv4,"192.168.198.11",8888,remote_locator);
-    factory->build_send_resources(send_resource_list_,*(locators.begin()));
-
-    // LocatorList locators;
-    // locators.push_back(remote_locator);
+    auto send_resource = factory->build_send_resources(*(locators.begin()));
+    if(!send_resource)
+    {
+        return ;
+    }
     octet *data = new octet[12];
     std::string str = "Hello,World!!!";
     memcpy(data,str.c_str(),str.length());
-    for (auto it : send_resource_list_)
-    {
-        it->send(data,12,locators,std::chrono::steady_clock::time_point());
-    }
+    
+    send_resource->send(data,12,locators,std::chrono::steady_clock::time_point());
 }
 
 void do_recv()
@@ -46,19 +42,16 @@ void do_recv()
     LocatorList locators;
     factory->default_metatraffic_multicast_locators(locators,30490);
 
-    factory->build_receiver_resources(recv_resource_list_, *(locators.begin()) ,65535);
+    auto recv_resource = factory->build_receiver_resources(*(locators.begin()) ,65535);
 
-    for(auto it : recv_resource_list_)
+    recv_resource->register_receiver([](const unsigned char* data,
+                                const uint32_t size,
+                                const Locator& local_locator,
+                                const Locator& remote_locator)
     {
-        it->register_receiver([](const unsigned char* data,
-                                    const uint32_t size,
-                                    const Locator& local_locator,
-                                    const Locator& remote_locator)
-        {
-            std::cout << "receive message : " <<
-                std::string(reinterpret_cast<const char*>(data),size) << std::endl;
-        });
-    }
+        std::cout << "receive message : " <<
+            std::string(reinterpret_cast<const char*>(data),size) << std::endl;
+    });
 }
 
 } // namespace
